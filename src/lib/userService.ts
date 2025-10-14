@@ -1,5 +1,5 @@
 import { collection, getDocs, query, orderBy } from 'firebase/firestore'
-import { db } from './firebase'
+import { getFirestore } from './firebase'
 
 export interface User {
   uid: string
@@ -13,6 +13,7 @@ export interface User {
 // 모든 사용자 목록 가져오기
 export const getAllUsers = async () => {
   try {
+    const db = await getFirestore()
     const usersRef = collection(db, 'users')
     const q = query(usersRef, orderBy('createdAt', 'desc'))
     const snapshot = await getDocs(q)
@@ -38,6 +39,7 @@ export const getAllUsers = async () => {
 // 사용자 통계 가져오기
 export const getUserStats = async () => {
   try {
+    const db = await getFirestore()
     const usersRef = collection(db, 'users')
     const snapshot = await getDocs(usersRef)
     

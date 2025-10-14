@@ -1,10 +1,17 @@
 // Firebase SDK를 CDN에서 직접 로드하는 방식
 // 이 방법은 Vercel의 모듈 로딩 문제를 우회합니다
 
+// Firebase SDK 타입 정의
+declare global {
+  interface Window {
+    firebase: any;
+  }
+}
+
 // Firebase SDK 로딩 함수
 const loadFirebaseSDK = async () => {
   if (typeof window === 'undefined') return null;
-  
+
   // Firebase SDK가 이미 로드되었는지 확인
   if (window.firebase) {
     console.log('Firebase SDK already loaded');
