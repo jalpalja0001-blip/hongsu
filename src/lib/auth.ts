@@ -7,7 +7,7 @@ import {
   updateProfile
 } from 'firebase/auth';
 import { doc, setDoc, getDoc } from 'firebase/firestore';
-import { auth, db } from './firebase';
+import { getAuth, getFirestore } from './firebase';
 
 // 사용자 타입 정의
 export interface UserProfile {
@@ -23,6 +23,7 @@ export interface UserProfile {
 export const signUp = async (email: string, password: string, displayName: string) => {
   try {
     // Firebase Auth로 사용자 생성
+    const auth = await getAuth();
     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
     const user = userCredential.user;
 
@@ -41,6 +42,7 @@ export const signUp = async (email: string, password: string, displayName: strin
         updatedAt: new Date()
       };
 
+    const db = await getFirestore();
     await setDoc(doc(db, 'users', user.uid), userProfile);
 
     return { success: true, user };
@@ -53,6 +55,7 @@ export const signUp = async (email: string, password: string, displayName: strin
 // 로그인 함수
 export const signIn = async (email: string, password: string) => {
   try {
+    const auth = await getAuth();
     const userCredential = await signInWithEmailAndPassword(auth, email, password);
     return { success: true, user: userCredential.user };
   } catch (error: unknown) {
@@ -64,6 +67,7 @@ export const signIn = async (email: string, password: string) => {
 // 로그아웃 함수
 export const logout = async () => {
   try {
+    const auth = await getAuth();
     await signOut(auth);
     return { success: true };
   } catch (error: unknown) {
@@ -76,6 +80,7 @@ export const logout = async () => {
 export const getUserProfile = async (uid: string): Promise<UserProfile | null> => {
   try {
     console.log('getUserProfile 호출됨, uid:', uid)
+    const db = await getFirestore();
     const userDoc = await getDoc(doc(db, 'users', uid));
     console.log('사용자 문서 존재 여부:', userDoc.exists())
     
