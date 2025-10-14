@@ -272,7 +272,8 @@ export default function AdminPage() {
         try {
           console.log('대시보드용 신청인원 로딩 시작...')
           const { doc, getDoc } = await import('firebase/firestore')
-          const { db } = await import('@/lib/firebase')
+          const { getFirestore } = await import('@/lib/firebase')
+          const db = await getFirestore()
           const counts: {[key: string]: number} = {}
           
           // 최근 체험단과 오늘 방문 체험단의 신청인원 로드
@@ -384,7 +385,8 @@ export default function AdminPage() {
     setExperiencesLoading(true)
     try {
       const { collection, getDocs, query, orderBy } = await import('firebase/firestore')
-      const { db } = await import('@/lib/firebase')
+      const { getFirestore } = await import('@/lib/firebase')
+      const db = await getFirestore()
       
       const experiencesRef = collection(db, 'experiences')
       const q = query(experiencesRef, orderBy('createdAt', 'desc'))
@@ -407,7 +409,8 @@ export default function AdminPage() {
   const handleExperienceStatusUpdate = useCallback(async (experienceId: string, newStatus: 'recruiting' | 'ongoing' | 'completed') => {
     try {
       const { doc, updateDoc } = await import('firebase/firestore')
-      const { db } = await import('@/lib/firebase')
+      const { getFirestore } = await import('@/lib/firebase')
+      const db = await getFirestore()
       
       const experienceRef = doc(db, 'experiences', experienceId)
       await updateDoc(experienceRef, {
@@ -431,7 +434,8 @@ export default function AdminPage() {
     
     try {
       const { doc, deleteDoc } = await import('firebase/firestore')
-      const { db } = await import('@/lib/firebase')
+      const { getFirestore } = await import('@/lib/firebase')
+      const db = await getFirestore()
       
       const experienceRef = doc(db, 'experiences', experienceId)
       await deleteDoc(experienceRef)
@@ -547,7 +551,8 @@ export default function AdminPage() {
     e.preventDefault()
     
     // 인증 상태 확인
-    const { auth } = await import('@/lib/firebase')
+    const { getAuth } = await import('@/lib/firebase')
+    const auth = await getAuth()
     
     console.log('=== 카드 생성/수정 시작 ===')
     console.log('현재 인증 상태 확인 중...')
@@ -580,7 +585,8 @@ export default function AdminPage() {
       setCardMessage('')
       
       const { collection, addDoc, Timestamp } = await import('firebase/firestore')
-      const { db } = await import('@/lib/firebase')
+      const { getFirestore } = await import('@/lib/firebase')
+      const db = await getFirestore()
       const { uploadImage } = await import('@/lib/imageService')
       
       
@@ -832,7 +838,8 @@ export default function AdminPage() {
 
     try {
       const { doc, deleteDoc } = await import('firebase/firestore')
-      const { db } = await import('@/lib/firebase')
+      const { getFirestore } = await import('@/lib/firebase')
+      const db = await getFirestore()
       
       await deleteDoc(doc(db, 'experiences', experienceId))
       setCardMessage('카드가 성공적으로 삭제되었습니다.')
@@ -1074,7 +1081,8 @@ export default function AdminPage() {
     try {
       console.log('신청인원 로딩 시작, 체험단 수:', allExperiences.length)
       const { doc, getDoc } = await import('firebase/firestore')
-      const { db } = await import('@/lib/firebase')
+      const { getFirestore } = await import('@/lib/firebase')
+      const db = await getFirestore()
       const counts: {[key: string]: number} = {}
       
       // 모든 체험단 (allExperiences)에 대한 신청인원 로드
@@ -1453,7 +1461,8 @@ export default function AdminPage() {
       console.log('=== 인스타그램 모든 체험단 로딩 시작 ===')
       
       const { collection, getDocs, orderBy, query } = await import('firebase/firestore')
-      const { db } = await import('@/lib/firebase')
+      const { getFirestore } = await import('@/lib/firebase')
+      const db = await getFirestore()
       
       const experiencesRef = collection(db, 'instagram_experiences')
       const q = query(experiencesRef, orderBy('createdAt', 'desc'))
@@ -1483,7 +1492,8 @@ export default function AdminPage() {
   const handleInstagramExperienceStatusUpdate = async (experienceId: string, newStatus: 'recruiting' | 'ongoing' | 'completed') => {
     try {
       const { doc, updateDoc } = await import('firebase/firestore')
-      const { db } = await import('@/lib/firebase')
+      const { getFirestore } = await import('@/lib/firebase')
+      const db = await getFirestore()
       
       const experienceRef = doc(db, 'instagram_experiences', experienceId)
       await updateDoc(experienceRef, { status: newStatus })
@@ -1510,7 +1520,8 @@ export default function AdminPage() {
     
     try {
       const { doc, deleteDoc } = await import('firebase/firestore')
-      const { db } = await import('@/lib/firebase')
+      const { getFirestore } = await import('@/lib/firebase')
+      const db = await getFirestore()
       
       const experienceRef = doc(db, 'instagram_experiences', experienceId)
       await deleteDoc(experienceRef)
@@ -1533,7 +1544,8 @@ export default function AdminPage() {
   const handleInstagramApplicationStatusUpdate = async (applicationId: string, newStatus: 'pending' | 'approved' | 'rejected') => {
     try {
       const { doc, updateDoc } = await import('firebase/firestore')
-      const { db } = await import('@/lib/firebase')
+      const { getFirestore } = await import('@/lib/firebase')
+      const db = await getFirestore()
       
       const applicationRef = doc(db, 'applications', applicationId)
       await updateDoc(applicationRef, { status: newStatus })
@@ -1555,7 +1567,8 @@ export default function AdminPage() {
   const handleInstagramCancelApproval = async (applicationId: string) => {
     try {
       const { doc, updateDoc } = await import('firebase/firestore')
-      const { db } = await import('@/lib/firebase')
+      const { getFirestore } = await import('@/lib/firebase')
+      const db = await getFirestore()
       
       const applicationRef = doc(db, 'applications', applicationId)
       await updateDoc(applicationRef, { status: 'pending' })
@@ -1577,7 +1590,8 @@ export default function AdminPage() {
   const handleInstagramCancelRejection = async (applicationId: string) => {
     try {
       const { doc, updateDoc } = await import('firebase/firestore')
-      const { db } = await import('@/lib/firebase')
+      const { getFirestore } = await import('@/lib/firebase')
+      const db = await getFirestore()
       
       const applicationRef = doc(db, 'applications', applicationId)
       await updateDoc(applicationRef, { status: 'pending' })
@@ -1603,7 +1617,8 @@ export default function AdminPage() {
     
     try {
       const { doc, deleteDoc } = await import('firebase/firestore')
-      const { db } = await import('@/lib/firebase')
+      const { getFirestore } = await import('@/lib/firebase')
+      const db = await getFirestore()
       
       const applicationRef = doc(db, 'applications', applicationId)
       await deleteDoc(applicationRef)
@@ -1822,7 +1837,8 @@ export default function AdminPage() {
 
     try {
       const { collection, addDoc, updateDoc, doc } = await import('firebase/firestore')
-      const { db } = await import('@/lib/firebase')
+      const { getFirestore } = await import('@/lib/firebase')
+      const db = await getFirestore()
       const { uploadImage, uploadImages } = await import('@/lib/imageService')
 
       let imageUrl = ''
@@ -1984,7 +2000,8 @@ export default function AdminPage() {
     
     try {
       const { doc, deleteDoc } = await import('firebase/firestore')
-      const { db } = await import('@/lib/firebase')
+      const { getFirestore } = await import('@/lib/firebase')
+      const db = await getFirestore()
       
       const experienceRef = doc(db, 'instagram_experiences', experienceId)
       await deleteDoc(experienceRef)
@@ -2225,7 +2242,8 @@ export default function AdminPage() {
                     try {
                       // Firestore 직접 조회
                       const { collection, getDocs } = await import('firebase/firestore')
-                      const { db } = await import('@/lib/firebase')
+                      const { getFirestore } = await import('@/lib/firebase')
+      const db = await getFirestore()
                       
                       // experiences 컬렉션 확인
                       const experiencesRef = collection(db, 'experiences')
@@ -2893,7 +2911,8 @@ export default function AdminPage() {
                     try {
                       // Firestore 직접 조회
                       const { collection, getDocs } = await import('firebase/firestore')
-                      const { db } = await import('@/lib/firebase')
+                      const { getFirestore } = await import('@/lib/firebase')
+      const db = await getFirestore()
                       
                       // experiences 컬렉션의 applications 배열 확인
                       const experiencesRef = collection(db, 'experiences')
@@ -3907,7 +3926,8 @@ export default function AdminPage() {
                     try {
                       // Firestore 직접 조회
                       const { collection, getDocs } = await import('firebase/firestore')
-                      const { db } = await import('@/lib/firebase')
+                      const { getFirestore } = await import('@/lib/firebase')
+      const db = await getFirestore()
                       
                       // instagram_experiences 컬렉션 확인
                       const experiencesRef = collection(db, 'instagram_experiences')
@@ -4387,7 +4407,8 @@ export default function AdminPage() {
                     try {
                       // Firestore 직접 조회
                       const { collection, getDocs } = await import('firebase/firestore')
-                      const { db } = await import('@/lib/firebase')
+                      const { getFirestore } = await import('@/lib/firebase')
+      const db = await getFirestore()
                       
                       // instagram_experiences 컬렉션의 applications 배열 확인
                       const experiencesRef = collection(db, 'instagram_experiences')
