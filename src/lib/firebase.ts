@@ -102,5 +102,8 @@ export async function getAnalytics() {
   return analytics;
 }
 
+// 직접 export (기존 코드와 호환성을 위해)
+export { auth, db, storage, analytics };
+
 // 기본 export
 export default { initializeFirebase, getAuth, getFirestore, getStorage, getAnalytics };
