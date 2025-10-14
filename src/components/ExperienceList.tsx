@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import ExperienceCard from './ExperienceCard'
 import { useLanguage } from '@/contexts/LanguageContext'
 import { collection, getDocs, query, orderBy } from 'firebase/firestore'
-import { db } from '@/lib/firebase'
+import { getFirestore } from '@/lib/firebase'
 import { Experience } from '@/types/database'
 
 export default function ExperienceList() {
@@ -19,6 +19,7 @@ export default function ExperienceList() {
     const fetchExperiences = async () => {
       try {
         setLoading(true)
+        const db = await getFirestore()
         const experiencesRef = collection(db, 'experiences')
         const q = query(experiencesRef, orderBy('createdAt', 'desc'))
         const snapshot = await getDocs(q)
