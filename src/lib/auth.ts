@@ -99,6 +99,7 @@ export const getUserProfile = async (uid: string): Promise<UserProfile | null> =
 };
 
 // 인증 상태 변경 감지
-export const onAuthStateChange = (callback: (user: User | null) => void) => {
+export const onAuthStateChange = async (callback: (user: User | null) => void) => {
+  const auth = await getAuth();
   return onAuthStateChanged(auth, callback);
 };
