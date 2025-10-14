@@ -217,7 +217,6 @@ export const getAllApplications = async () => {
 export const getInstagramApplicationsByExperience = async (experienceId: string) => {
   try {
     console.log('getInstagramApplicationsByExperience 호출됨, experienceId:', experienceId)
-    const db = await getFirestore()
     const experienceRef = doc(db, 'instagram_experiences', experienceId)
     const experienceDoc = await getDoc(experienceRef)
     
@@ -241,7 +240,6 @@ export const getInstagramApplicationsByExperience = async (experienceId: string)
 export const getApplicationsByExperience = async (experienceId: string) => {
   try {
     console.log('getApplicationsByExperience 호출됨, experienceId:', experienceId)
-    const db = await getFirestore()
     const experienceRef = doc(db, 'experiences', experienceId)
     const experienceDoc = await getDoc(experienceRef)
     
