@@ -16,6 +16,9 @@ const firebaseConfig = {
   measurementId: "G-NNG7P8ZY5F"
 };
 
+// 디버깅을 위한 로그
+console.log('Firebase Config:', firebaseConfig);
+
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 
