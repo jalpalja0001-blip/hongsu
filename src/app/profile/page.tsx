@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
 import { doc, updateDoc } from 'firebase/firestore';
-import { db } from '@/lib/firebase';
+import { getFirestore } from '@/lib/firebase';
 import { useLanguage } from '@/contexts/LanguageContext';
 
 export default function ProfilePage() {
@@ -47,6 +47,7 @@ export default function ProfilePage() {
     setMessage('');
 
     try {
+      const db = await getFirestore();
       const userRef = doc(db, 'users', user.uid);
       await updateDoc(userRef, {
         displayName: formData.displayName,
