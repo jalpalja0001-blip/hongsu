@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/hooks/useAuth'
 import { useLanguage } from '@/contexts/LanguageContext'
-import { db } from '@/lib/firebase'
+import { getFirestore } from '@/lib/firebase'
 import { Application } from '@/lib/applicationService'
 import { User, Calendar, FileText, Settings, LogOut } from 'lucide-react'
 
@@ -128,6 +128,7 @@ export default function MyPage() {
 
       // 일반 체험단에서 신청서 찾기
       console.log('=== 일반 체험단에서 신청서 검색 ===')
+      const db = await getFirestore()
       const experiencesRef = collection(db, 'experiences')
       const experiencesSnapshot = await getDocs(experiencesRef)
       console.log('일반 체험단 문서 수:', experiencesSnapshot.docs.length)
@@ -239,7 +240,8 @@ export default function MyPage() {
 
       // 인스타그램 체험단에서 신청서 찾기
       console.log('=== 인스타그램 체험단에서 신청서 검색 ===')
-      const instagramExperiencesRef = collection(db, 'instagram_experiences')
+      const instagramDb = await getFirestore()
+      const instagramExperiencesRef = collection(instagramDb, 'instagram_experiences')
       const instagramSnapshot = await getDocs(instagramExperiencesRef)
       console.log('인스타그램 체험단 문서 수:', instagramSnapshot.docs.length)
       
