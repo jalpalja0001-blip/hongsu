@@ -1,0 +1,14 @@
+{
+  "/_not-found/page": "app/_not-found/page.js",
+  "/admin/page": "app/admin/page.js",
+  "/experiences/[id]/page": "app/experiences/[id]/page.js",
+  "/favicon.ico/route": "app/favicon.ico/route.js",
+  "/forgot-password/page": "app/forgot-password/page.js",
+  "/instagram/experiences/[id]/page": "app/instagram/experiences/[id]/page.js",
+  "/instagram/page": "app/instagram/page.js",
+  "/login/page": "app/login/page.js",
+  "/mypage/page": "app/mypage/page.js",
+  "/page": "app/page.js",
+  "/profile/page": "app/profile/page.js",
+  "/register/page": "app/register/page.js"
+}
