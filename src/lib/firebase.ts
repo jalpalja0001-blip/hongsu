@@ -5,6 +5,9 @@ import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
 
+// Firebase SDK 로딩 확인
+console.log('Firebase SDK loaded successfully');
+
 // Your web app's Firebase configuration
 const firebaseConfig = {
   apiKey: "AIzaSyDD8AG4WZT-XjFQaX5WcQOLs80XEcTThi4",
@@ -18,6 +21,11 @@ const firebaseConfig = {
 
 // 디버깅을 위한 로그
 console.log('Firebase Config:', firebaseConfig);
+console.log('Environment check:', {
+  NODE_ENV: process.env.NODE_ENV,
+  VERCEL: process.env.VERCEL,
+  VERCEL_ENV: process.env.VERCEL_ENV
+});
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
