@@ -1,5 +1,5 @@
 import { collection, addDoc } from 'firebase/firestore';
-import { getFirestore } from './firebase';
+import { db } from './firebase';
 
 // 체험단 데이터
 const experiencesData = [
@@ -205,7 +205,6 @@ const experiencesData = [
 // Firestore에 데이터 저장
 export const seedExperiences = async () => {
   try {
-    const db = await getFirestore();
     const experiencesRef = collection(db, 'experiences');
     
     for (const experience of experiencesData) {

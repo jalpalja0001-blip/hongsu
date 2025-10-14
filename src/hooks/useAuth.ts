@@ -9,20 +9,17 @@ export const useAuth = () => {
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    let unsubscribe: (() => void) | null = null;
-
-    const setupAuth = async () => {
-      unsubscribe = await onAuthStateChange(async (user) => {
+         useEffect(() => {
+           const unsubscribe = onAuthStateChange(async (user) => {
         console.log('=== useAuth: 인증 상태 변경 ===')
         console.log('사용자 정보:', user ? {
           uid: user.uid,
           email: user.email,
           displayName: user.displayName
         } : 'null')
-        
+
         setUser(user);
-        
+
         if (user) {
           // 사용자 프로필 정보 가져오기
           console.log('사용자 프로필 로딩 시작...')
@@ -33,18 +30,11 @@ export const useAuth = () => {
           console.log('사용자가 로그아웃됨')
           setUserProfile(null);
         }
-        
+
         setLoading(false);
       });
-    };
 
-    setupAuth();
-
-    return () => {
-      if (unsubscribe) {
-        unsubscribe();
-      }
-    };
+      return () => unsubscribe();
   }, []);
 
   return {

@@ -1,4 +1,4 @@
-import { getStorage } from './firebase'
+import { storage } from './firebase'
 import { ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage'
 
 // 이미지 업로드
@@ -13,8 +13,7 @@ export const uploadImage = async (file: File, path: string): Promise<{ success: 
     })
     
     // 인증 상태 확인
-    const { getAuth } = await import('./firebase')
-    const auth = await getAuth()
+    const { auth } = await import('./firebase')
     const currentUser = auth?.currentUser
     console.log('현재 인증된 사용자:', currentUser ? {
       uid: currentUser.uid,
@@ -41,7 +40,6 @@ export const uploadImage = async (file: File, path: string): Promise<{ success: 
     
     console.log('Firebase Storage 참조 생성:', path)
     // Firebase Storage에 업로드
-    const storage = await getStorage()
     const storageRef = ref(storage, path)
     console.log('파일 업로드 시작...')
     console.log('Storage 참조:', storageRef)
@@ -89,7 +87,6 @@ export const deleteImage = async (url: string): Promise<{ success: boolean; erro
     const fileName = urlParts[urlParts.length - 1].split('?')[0]
     const path = `images/${fileName}`
     
-    const storage = await getStorage()
     const imageRef = ref(storage, path)
     await deleteObject(imageRef)
     

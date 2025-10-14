@@ -5,7 +5,7 @@ import { useParams, useRouter } from 'next/navigation'
 import { useAuth } from '@/hooks/useAuth'
 import { useLanguage } from '@/contexts/LanguageContext'
 import { doc, getDoc } from 'firebase/firestore'
-import { getFirestore } from '@/lib/firebase'
+import { db } from '@/lib/firebase'
 import { submitInstagramApplication, getInstagramApplicationsByExperience } from '@/lib/applicationService'
 import { Experience } from '@/types/database'
 import { ArrowLeft, Calendar, Users, MapPin, Clock, Star, CheckCircle } from 'lucide-react'
@@ -143,8 +143,7 @@ export default function InstagramExperienceDetailPage() {
         console.log('인스타그램 체험단 상세 정보 로딩 시작:', params.id)
         setLoading(true)
         
-        const db = await getFirestore()
-        const experienceRef = doc(db, 'instagram_experiences', params.id as string)
+      const experienceRef = doc(db, 'instagram_experiences', params.id as string)
         const experienceSnap = await getDoc(experienceRef)
         
         if (experienceSnap.exists()) {

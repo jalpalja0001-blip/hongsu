@@ -1,5 +1,5 @@
 import { collection, getDocs, doc, updateDoc, getDoc } from 'firebase/firestore'
-import { getFirestore } from './firebase'
+import { db } from './firebase'
 
 export interface Application {
   id?: string
@@ -29,7 +29,6 @@ export const submitInstagramApplication = async (application: Omit<Application, 
     console.log('=== 인스타그램 체험단 신청서 제출 시작 ===')
     console.log('신청 데이터:', application)
     
-    const db = await getFirestore()
     const experienceRef = doc(db, 'instagram_experiences', application.experienceId)
     const experienceDoc = await getDoc(experienceRef)
     
@@ -80,7 +79,6 @@ export const submitApplication = async (application: Omit<Application, 'id' | 'c
     console.log('=== 신청서 제출 시작 ===')
     console.log('신청 데이터:', application)
     
-    const db = await getFirestore()
     const experienceRef = doc(db, 'experiences', application.experienceId)
     const experienceDoc = await getDoc(experienceRef)
     
@@ -135,7 +133,6 @@ export const getAllApplications = async () => {
     
     // 1. experiences 컬렉션에서 신청서 가져오기
     console.log('--- experiences 컬렉션 조회 시작 ---')
-    const db = await getFirestore()
     const experiencesRef = collection(db, 'experiences')
     const experiencesSnapshot = await getDocs(experiencesRef)
     
@@ -276,7 +273,6 @@ export const updateApplicationStatus = async (applicationId: string, status: 'pe
     
     // 1. experiences 컬렉션에서 신청서 찾기
     console.log('--- experiences 컬렉션에서 신청서 검색 ---')
-    const db = await getFirestore()
     const experiencesRef = collection(db, 'experiences')
     const experiencesSnapshot = await getDocs(experiencesRef)
     
@@ -350,7 +346,6 @@ export const cancelApproval = async (applicationId: string) => {
     
     // 1. experiences 컬렉션에서 신청서 찾기
     console.log('--- experiences 컬렉션에서 신청서 검색 ---')
-    const db = await getFirestore()
     const experiencesRef = collection(db, 'experiences')
     const experiencesSnapshot = await getDocs(experiencesRef)
     
@@ -424,7 +419,6 @@ export const cancelRejection = async (applicationId: string) => {
     
     // 1. experiences 컬렉션에서 신청서 찾기
     console.log('--- experiences 컬렉션에서 신청서 검색 ---')
-    const db = await getFirestore()
     const experiencesRef = collection(db, 'experiences')
     const experiencesSnapshot = await getDocs(experiencesRef)
     
@@ -498,7 +492,6 @@ export const deleteApplication = async (applicationId: string) => {
     
     // 1. experiences 컬렉션에서 신청서 찾기
     console.log('--- experiences 컬렉션에서 신청서 검색 ---')
-    const db = await getFirestore()
     const experiencesRef = collection(db, 'experiences')
     const experiencesSnapshot = await getDocs(experiencesRef)
     
@@ -572,7 +565,6 @@ export const getApplicationStats = async () => {
     
     // 1. experiences 컬렉션에서 신청서 가져오기
     console.log('--- experiences 컬렉션 통계 조회 시작 ---')
-    const db = await getFirestore()
     const experiencesRef = collection(db, 'experiences')
     const experiencesSnapshot = await getDocs(experiencesRef)
     
@@ -640,7 +632,6 @@ export const migrateApplicationsToCollection = async () => {
   try {
     console.log('=== 신청 데이터 마이그레이션 시작 ===')
     
-    const db = await getFirestore()
     const experiencesRef = collection(db, 'experiences')
     const snapshot = await getDocs(experiencesRef)
     

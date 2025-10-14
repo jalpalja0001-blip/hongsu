@@ -5,7 +5,7 @@ import { useParams, useRouter } from 'next/navigation'
 import { useAuth } from '@/hooks/useAuth'
 import { useLanguage } from '@/contexts/LanguageContext'
 import { doc, getDoc } from 'firebase/firestore'
-import { getFirestore } from '@/lib/firebase'
+import { db } from '@/lib/firebase'
 import { submitApplication, getApplicationsByExperience } from '@/lib/applicationService'
 import { Experience } from '@/types/database'
 import { ArrowLeft, Calendar, Users, MapPin, Clock, Star, CheckCircle } from 'lucide-react'
@@ -119,8 +119,7 @@ export default function ExperienceDetailPage() {
     const fetchExperience = async () => {
       try {
         setLoading(true)
-        const db = await getFirestore()
-        const docRef = doc(db, 'experiences', params.id as string)
+    const docRef = doc(db, 'experiences', params.id as string)
         const docSnap = await getDoc(docRef)
         
         if (docSnap.exists()) {

@@ -1,9 +1,9 @@
 // Firebase v9+ 모듈 방식
 import { initializeApp } from 'firebase/app';
-import { getAuth as firebaseGetAuth } from 'firebase/auth';
-import { getFirestore as firebaseGetFirestore } from 'firebase/firestore';
-import { getStorage as firebaseGetStorage } from 'firebase/storage';
-import { getAnalytics as firebaseGetAnalytics } from 'firebase/analytics';
+import { getAuth } from 'firebase/auth';
+import { getFirestore } from 'firebase/firestore';
+import { getStorage } from 'firebase/storage';
+import { getAnalytics } from 'firebase/analytics';
 
 // Firebase 설정
 const firebaseConfig = {
@@ -20,15 +20,9 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 
 // Firebase 서비스들
-export const auth = firebaseGetAuth(app);
-export const db = firebaseGetFirestore(app);
-export const storage = firebaseGetStorage(app);
-export const analytics = typeof window !== 'undefined' ? firebaseGetAnalytics(app) : null;
-
-// 기존 코드와 호환성을 위한 함수들
-export const getAuth = () => auth;
-export const getFirestore = () => db;
-export const getStorage = () => storage;
-export const getAnalytics = () => analytics;
+export const auth = getAuth(app);
+export const db = getFirestore(app);
+export const storage = getStorage(app);
+export const analytics = typeof window !== 'undefined' ? getAnalytics(app) : null;
 
 export default app;

@@ -1,11 +1,10 @@
 import { collection, getDocs, query, orderBy, limit, where } from 'firebase/firestore'
-import { getFirestore } from './firebase'
+import { db } from './firebase'
 import { Experience } from '@/types/database'
 
 // 최근 체험단 목록 가져오기
 export const getRecentExperiences = async (limitCount: number = 5) => {
   try {
-    const db = await getFirestore()
     const experiencesRef = collection(db, 'experiences')
     const q = query(experiencesRef, orderBy('createdAt', 'desc'), limit(limitCount))
     const snapshot = await getDocs(q)
@@ -26,7 +25,6 @@ export const getRecentExperiences = async (limitCount: number = 5) => {
 export const getTodayExperiences = async () => {
   try {
     console.log('=== getTodayExperiences 시작 ===')
-    const db = await getFirestore()
     const experiencesRef = collection(db, 'experiences')
     const snapshot = await getDocs(experiencesRef)
     
@@ -82,7 +80,6 @@ export const getTodayExperiences = async () => {
 export const getExperienceStats = async () => {
   try {
     console.log('=== getExperienceStats 시작 ===')
-    const db = await getFirestore()
     const experiencesRef = collection(db, 'experiences')
     const snapshot = await getDocs(experiencesRef)
     

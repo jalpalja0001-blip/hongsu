@@ -1,5 +1,5 @@
 import { doc, updateDoc, deleteDoc, getDoc, collection, query, where, getDocs } from 'firebase/firestore'
-import { getFirestore } from './firebase'
+import { db } from './firebase'
 
 export type UserRole = 'admin' | 'advertiser' | 'user'
 
@@ -16,7 +16,6 @@ export interface UserWithRole {
 // 사용자 역할 업데이트
 export const updateUserRole = async (userId: string, role: UserRole) => {
   try {
-    const db = await getFirestore()
     const userRef = doc(db, 'users', userId)
     await updateDoc(userRef, {
       role,
@@ -32,7 +31,6 @@ export const updateUserRole = async (userId: string, role: UserRole) => {
 // 사용자 삭제
 export const deleteUser = async (userId: string) => {
   try {
-    const db = await getFirestore()
     const userRef = doc(db, 'users', userId)
     await deleteDoc(userRef)
     return { success: true }
@@ -45,7 +43,6 @@ export const deleteUser = async (userId: string) => {
 // 사용자 정보 가져오기 (이메일로 검색)
 export const getUserByEmail = async (email: string) => {
   try {
-    const db = await getFirestore()
     const usersRef = collection(db, 'users')
     const q = query(usersRef, where('email', '==', email))
     const snapshot = await getDocs(q)
@@ -68,7 +65,6 @@ export const getUserByEmail = async (email: string) => {
 // 사용자 정보 가져오기 (ID로 검색)
 export const getUserById = async (userId: string) => {
   try {
-    const db = await getFirestore()
     const userRef = doc(db, 'users', userId)
     const userSnap = await getDoc(userRef)
     
