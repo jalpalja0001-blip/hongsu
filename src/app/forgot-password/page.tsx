@@ -5,7 +5,7 @@ import { useState } from 'react'
 import Link from 'next/link'
 // import { useLanguage } from '@/contexts/LanguageContext' // 사용하지 않음
 import { sendPasswordResetEmail } from 'firebase/auth'
-import { auth } from '@/lib/firebase'
+import { getAuth } from '@/lib/firebase'
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState('')
@@ -22,6 +22,7 @@ export default function ForgotPasswordPage() {
     setMessage('')
 
     try {
+      const auth = await getAuth()
       await sendPasswordResetEmail(auth, email)
       setMessage('비밀번호 재설정 이메일이 전송되었습니다. 이메일을 확인해주세요.')
     } catch (error: unknown) {
