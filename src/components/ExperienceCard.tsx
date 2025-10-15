@@ -495,31 +495,21 @@ export default function ExperienceCard({ experience, isInstagram = false }: Expe
             {t('card.closed')}
           </div>
         ) : !isAuthenticated ? (
-          <button
-            onClick={() => {
-              console.log('로그인 페이지로 이동 - isAuthenticated:', isAuthenticated)
-              window.location.assign('/login')
-            }}
-            className="w-full py-3 px-4 rounded-lg text-sm font-medium bg-red-600 text-white hover:bg-red-700 text-center"
-            type="button"
+          <a
+            href="/login"
+            className="w-full py-3 px-4 rounded-lg text-sm font-medium bg-red-600 text-white hover:bg-red-700 text-center block"
           >
             {t('card.apply')}
-          </button>
+          </a>
         ) : (
-          <button
-            onClick={() => {
-              console.log('상세페이지로 이동 - isAuthenticated:', isAuthenticated)
-              const url = isInstagram 
-                ? `/instagram/experiences/${experience.id}`
-                : `/experiences/${experience.id}`
-              console.log('이동할 URL:', url)
-              window.location.assign(url)
-            }}
-            className="w-full py-3 px-4 rounded-lg text-sm font-medium bg-red-600 text-white hover:bg-red-700 text-center"
-            type="button"
+          <a
+            href={isInstagram 
+              ? `/instagram/experiences/${experience.id}`
+              : `/experiences/${experience.id}`}
+            className="w-full py-3 px-4 rounded-lg text-sm font-medium bg-red-600 text-white hover:bg-red-700 text-center block"
           >
             {t('card.apply')}
-          </button>
+          </a>
         )}
       </div>
     </div>
