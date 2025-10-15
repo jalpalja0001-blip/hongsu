@@ -490,42 +490,29 @@ export default function ExperienceCard({ experience, isInstagram = false }: Expe
         </div>
 
         {/* 버튼 */}
-        <a
-          href={daysUntilEnd <= 0 ? '#' : (isInstagram 
-            ? `/instagram/experiences/${experience.id}`
-            : `/experiences/${experience.id}`)}
-          onClick={(e) => {
-            if (daysUntilEnd <= 0) {
-              e.preventDefault()
-              return
-            }
-            
-            if (!loading && !isAuthenticated) {
-              e.preventDefault()
-              window.location.href = '/login'
-              return
-            }
-            
-            if (loading) {
-              e.preventDefault()
-              return
-            }
-            
-            // 로그인된 경우 정상적으로 링크 이동
-            console.log('신청 버튼 클릭 - 상세페이지로 이동')
-          }}
-          className={`w-full py-3 px-4 rounded-lg text-sm font-medium transition-colors text-center block ${
-            daysUntilEnd <= 0 
-              ? 'bg-gray-400 text-gray-200 cursor-not-allowed pointer-events-none' 
-              : 'bg-red-600 text-white hover:bg-red-700'
-          }`}
-          style={{ 
-            textDecoration: 'none',
-            touchAction: 'manipulation'
-          }}
-        >
-          {daysUntilEnd <= 0 ? t('card.closed') : t('card.apply')}
-        </a>
+        {daysUntilEnd <= 0 ? (
+          <div className="w-full py-3 px-4 rounded-lg text-sm font-medium bg-gray-400 text-gray-200 cursor-not-allowed text-center">
+            {t('card.closed')}
+          </div>
+        ) : !isAuthenticated ? (
+          <a
+            href="/login"
+            className="w-full py-3 px-4 rounded-lg text-sm font-medium bg-red-600 text-white hover:bg-red-700 text-center block"
+            style={{ textDecoration: 'none' }}
+          >
+            {t('card.apply')}
+          </a>
+        ) : (
+          <a
+            href={isInstagram 
+              ? `/instagram/experiences/${experience.id}`
+              : `/experiences/${experience.id}`}
+            className="w-full py-3 px-4 rounded-lg text-sm font-medium bg-red-600 text-white hover:bg-red-700 text-center block"
+            style={{ textDecoration: 'none' }}
+          >
+            {t('card.apply')}
+          </a>
+        )}
       </div>
     </div>
   )
