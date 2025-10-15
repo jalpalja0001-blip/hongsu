@@ -14,11 +14,7 @@ export default function Header() {
   const { isAdmin, userRole, adminLoading } = useAdminAuth()
   const { t } = useLanguage()
 
-  // 디버깅을 위한 로그
-  console.log('Header - isAuthenticated:', isAuthenticated)
-  console.log('Header - isAdmin:', isAdmin)
-  console.log('Header - userRole:', userRole)
-  console.log('Header - adminLoading:', adminLoading)
+  // 디버깅 로그 제거됨
 
   const handleLogout = async () => {
     await logout()

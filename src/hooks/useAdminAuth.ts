@@ -26,16 +26,13 @@ export const useAdminAuth = () => {
       // 인증된 경우 권한 확인
       try {
         setAdminLoading(true)
-        console.log('권한 확인 중:', user.email)
         const result = await getUserByEmail(user.email)
         
         if (result.success && result.user) {
           const role = result.user.role || 'user'
-          console.log('사용자 역할:', role)
           setUserRole(role)
           setIsAdmin(role === 'admin')
         } else {
-          console.log('사용자 정보를 찾을 수 없음')
           setIsAdmin(false)
           setUserRole('user')
         }
@@ -54,8 +51,6 @@ export const useAdminAuth = () => {
   return {
     isAdmin,
     adminLoading,
-    userRole,
-    isAuthenticated,
-    loading: loading || adminLoading
+    userRole
   }
 }

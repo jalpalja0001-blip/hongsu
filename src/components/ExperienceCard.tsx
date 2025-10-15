@@ -313,7 +313,10 @@ export default function ExperienceCard({ experience, isInstagram = false }: Expe
   // const isFull = experience.participants >= experience.maxParticipants // 사용하지 않음
   const isUrgent = daysUntilEnd <= 3
 
-  const handleApply = () => {
+  const handleApply = (e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    
     // 마감된 경우 아무것도 하지 않음
     if (daysUntilEnd <= 0) {
       return
@@ -517,6 +520,7 @@ export default function ExperienceCard({ experience, isInstagram = false }: Expe
         <button 
           onClick={handleApply}
           disabled={daysUntilEnd <= 0}
+          type="button"
           className={`w-full py-3 px-4 rounded-lg text-sm font-medium transition-colors ${
             daysUntilEnd <= 0 
               ? 'bg-gray-400 text-gray-200 cursor-not-allowed' 

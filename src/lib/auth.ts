@@ -75,16 +75,12 @@ export const logout = async () => {
 // 사용자 프로필 가져오기
 export const getUserProfile = async (uid: string): Promise<UserProfile | null> => {
   try {
-    console.log('getUserProfile 호출됨, uid:', uid)
     const userDoc = await getDoc(doc(db, 'users', uid));
-    console.log('사용자 문서 존재 여부:', userDoc.exists())
     
     if (userDoc.exists()) {
       const userData = userDoc.data() as UserProfile;
-      console.log('사용자 프로필 데이터:', userData)
       return userData;
     } else {
-      console.warn('사용자 문서가 존재하지 않습니다. uid:', uid)
       return null;
     }
   } catch (error) {
