@@ -12,29 +12,15 @@ export default function PasswordResetNotification() {
 
   useEffect(() => {
     if (isAuthenticated && user?.email) {
-      // 기존 사용자인지 확인 (마이그레이션된 사용자)
-      const isExistingUser = checkIfExistingUser(user.email)
+      // 팝업을 본 적이 있는지 확인
+      const hasSeenNotification = localStorage.getItem('password-reset-notification-seen')
       
-      if (isExistingUser) {
-        // 팝업을 본 적이 있는지 확인
-        const hasSeenNotification = localStorage.getItem('password-reset-notification-seen')
-        
-        if (!hasSeenNotification) {
-          setIsVisible(true)
-        }
+      if (!hasSeenNotification) {
+        setIsVisible(true)
       }
     }
   }, [isAuthenticated, user])
 
-  const checkIfExistingUser = (email: string) => {
-    // 마이그레이션된 사용자 이메일 목록 (실제로는 서버에서 확인해야 함)
-    const migratedUsers = [
-      'sprince1004@naver.com',
-      // 다른 마이그레이션된 사용자 이메일들 추가
-    ]
-    
-    return migratedUsers.includes(email)
-  }
 
   const handleClose = () => {
     setIsVisible(false)
@@ -43,6 +29,8 @@ export default function PasswordResetNotification() {
   }
 
   const handleResetPassword = () => {
+    // 팝업을 본 것으로 기록
+    localStorage.setItem('password-reset-notification-seen', 'true')
     // 기존 비밀번호 재설정 페이지로 이동
     window.location.href = '/forgot-password'
   }

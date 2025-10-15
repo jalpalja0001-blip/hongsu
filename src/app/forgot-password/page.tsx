@@ -24,6 +24,8 @@ export default function ForgotPasswordPage() {
     try {
       await sendPasswordResetEmail(auth, email)
       setMessage('비밀번호 재설정 이메일이 전송되었습니다. 이메일을 확인해주세요.')
+      // 비밀번호 재설정 알림을 본 것으로 기록
+      localStorage.setItem('password-reset-notification-seen', 'true')
     } catch (error: unknown) {
       console.error('비밀번호 재설정 오류:', error)
       const errorCode = error && typeof error === 'object' && 'code' in error ? (error as { code: string }).code : undefined;
