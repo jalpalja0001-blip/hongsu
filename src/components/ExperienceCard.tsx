@@ -499,6 +499,7 @@ export default function ExperienceCard({ experience, isInstagram = false }: Expe
             href="/login"
             className="w-full py-3 px-4 rounded-lg text-sm font-medium bg-red-600 text-white hover:bg-red-700 text-center block"
             style={{ textDecoration: 'none' }}
+            onClick={() => console.log('로그인 페이지로 이동 - isAuthenticated:', isAuthenticated)}
           >
             {t('card.apply')}
           </a>
