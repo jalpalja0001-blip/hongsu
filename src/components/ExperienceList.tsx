@@ -19,18 +19,24 @@ export default function ExperienceList() {
     const fetchExperiences = async () => {
       try {
         setLoading(true)
-      const experiencesRef = collection(db, 'experiences')
+        console.log('Firebase 연결 시도 중...')
+        
+        const experiencesRef = collection(db, 'experiences')
         const q = query(experiencesRef, orderBy('createdAt', 'desc'))
         const snapshot = await getDocs(q)
+        
+        console.log('Firebase 쿼리 성공, 문서 수:', snapshot.docs.length)
         
         const experiencesData = snapshot.docs.map(doc => ({
           id: doc.id,
           ...doc.data()
         })) as Experience[]
         
+        console.log('체험단 데이터 로드 완료:', experiencesData.length, '개')
         setExperiences(experiencesData)
       } catch (error) {
         console.error('체험단 데이터 로딩 오류:', error)
+        console.error('Firebase 연결 실패, 빈 배열로 설정')
         setExperiences([]) // 오류 시 빈 배열로 설정
       } finally {
         setLoading(false)

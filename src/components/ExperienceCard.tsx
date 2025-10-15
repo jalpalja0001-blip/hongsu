@@ -1,5 +1,6 @@
 import { useLanguage } from '@/contexts/LanguageContext'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 import { useState, useEffect, useCallback } from 'react'
 import { getApplicationsByExperience, getInstagramApplicationsByExperience } from '@/lib/applicationService'
 import { Experience } from '@/types/database'
@@ -506,20 +507,21 @@ export default function ExperienceCard({ experience, isInstagram = false }: Expe
             {t('card.apply')}
           </button>
         ) : (
-          <button
+          <Link
+            href={isInstagram 
+              ? `/instagram/experiences/${experience.id}`
+              : `/experiences/${experience.id}`}
+            className="w-full py-3 px-4 rounded-lg text-sm font-medium bg-red-600 text-white hover:bg-red-700 text-center block"
             onClick={() => {
-              console.log('상세페이지로 이동');
+              console.log('상세페이지로 이동 (Link 컴포넌트)');
               const url = isInstagram 
                 ? `/instagram/experiences/${experience.id}`
                 : `/experiences/${experience.id}`;
               console.log('이동할 URL:', url);
-              window.location.href = url;
             }}
-            className="w-full py-3 px-4 rounded-lg text-sm font-medium bg-red-600 text-white hover:bg-red-700 text-center"
-            type="button"
           >
             {t('card.apply')}
-          </button>
+          </Link>
         )}
       </div>
     </div>
