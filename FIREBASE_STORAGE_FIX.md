@@ -7,7 +7,7 @@ Firebase Storage에 이미지가 저장되지 않는 문제가 발생했습니�
 
 ### 1. Firebase Console 접속
 1. https://console.firebase.google.com 접속
-2. 프로젝트 "hongsu-9d9c2" 선택
+2. 프로젝트 "jalpalja" 선택
 
 ### 2. Storage 규칙 수정
 1. 왼쪽 메뉴에서 "Storage" 클릭
@@ -19,7 +19,7 @@ rules_version = "2";
 service firebase.storage {
   match /b/{bucket}/o {
     match /{allPaths=**} {
-      allow read, write: if true;
+      allow read, write: if request.auth != null;
     }
   }
 }
@@ -45,5 +45,10 @@ service firebase.storage {
 }
 ```
 
+## Firebase Storage 용량 제한
+- **Spark Plan (무료)**: 1GB Storage, 1GB/일 다운로드
+- **Blaze Plan (유료)**: 무제한 Storage, $0.12/GB 다운로드
+
 ## 확인 방법
-규칙 수정 후 웹 애플리케이션에서 이미지 업로드를 테스트해보세요.
+1. 규칙 수정 후 웹 애플리케이션에서 이미지 업로드를 테스트해보세요.
+2. Firebase Console → Storage → Usage에서 용량 사용량을 확인하세요.
