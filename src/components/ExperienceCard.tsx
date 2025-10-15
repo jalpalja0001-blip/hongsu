@@ -313,32 +313,42 @@ export default function ExperienceCard({ experience, isInstagram = false }: Expe
   // const isFull = experience.participants >= experience.maxParticipants // 사용하지 않음
   const isUrgent = daysUntilEnd <= 3
 
-  const handleApply = (e: React.MouseEvent) => {
+  const handleApply = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault()
     e.stopPropagation()
     
+    console.log('신청 버튼 클릭됨:', { 
+      experienceId: experience.id, 
+      isInstagram, 
+      daysUntilEnd,
+      isAuthenticated,
+      loading 
+    })
+    
     // 마감된 경우 아무것도 하지 않음
     if (daysUntilEnd <= 0) {
+      console.log('마감된 체험단 - 신청 불가')
       return
     }
     
     if (!loading && !isAuthenticated) {
-      // 로그인하지 않은 경우 로그인 페이지로 리다이렉트
+      console.log('로그인하지 않음 - 로그인 페이지로 이동')
       router.push('/login')
       return
     }
     
     if (loading) {
-      // 로딩 중인 경우 아무것도 하지 않음
+      console.log('로딩 중 - 신청 불가')
       return
     }
     
     // 로그인된 경우 체험단 상세 페이지로 이동
-    if (isInstagram) {
-      router.push(`/instagram/experiences/${experience.id}`)
-    } else {
-      router.push(`/experiences/${experience.id}`)
-    }
+    const targetPath = isInstagram 
+      ? `/instagram/experiences/${experience.id}`
+      : `/experiences/${experience.id}`
+    
+    console.log('상세페이지로 이동:', targetPath)
+    router.push(targetPath)
   }
 
   return (
@@ -519,8 +529,11 @@ export default function ExperienceCard({ experience, isInstagram = false }: Expe
         {/* 버튼 */}
         <button 
           onClick={handleApply}
+          onMouseDown={(e) => e.preventDefault()}
           disabled={daysUntilEnd <= 0}
           type="button"
+          role="button"
+          aria-label={daysUntilEnd <= 0 ? t('card.closed') : t('card.apply')}
           className={`w-full py-3 px-4 rounded-lg text-sm font-medium transition-colors ${
             daysUntilEnd <= 0 
               ? 'bg-gray-400 text-gray-200 cursor-not-allowed' 
