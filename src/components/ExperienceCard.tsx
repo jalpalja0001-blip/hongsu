@@ -496,7 +496,11 @@ export default function ExperienceCard({ experience, isInstagram = false }: Expe
           </div>
         ) : !isAuthenticated ? (
           <button
-            onClick={() => window.location.href = '/login'}
+            onClick={(e) => {
+              e.preventDefault()
+              e.stopPropagation()
+              router.push('/login')
+            }}
             className="w-full py-3 px-4 rounded-lg text-sm font-medium bg-red-600 text-white hover:bg-red-700 text-center"
             type="button"
           >
@@ -504,11 +508,13 @@ export default function ExperienceCard({ experience, isInstagram = false }: Expe
           </button>
         ) : (
           <button
-            onClick={() => {
+            onClick={(e) => {
+              e.preventDefault()
+              e.stopPropagation()
               const url = isInstagram 
                 ? `/instagram/experiences/${experience.id}`
                 : `/experiences/${experience.id}`
-              window.location.href = url
+              router.push(url)
             }}
             className="w-full py-3 px-4 rounded-lg text-sm font-medium bg-red-600 text-white hover:bg-red-700 text-center"
             type="button"
