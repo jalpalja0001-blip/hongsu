@@ -495,32 +495,23 @@ export default function ExperienceCard({ experience, isInstagram = false }: Expe
             {t('card.closed')}
           </div>
         ) : !isAuthenticated ? (
-          <button
-            onClick={(e) => {
-              e.preventDefault()
-              e.stopPropagation()
-              router.push('/login')
-            }}
-            className="w-full py-3 px-4 rounded-lg text-sm font-medium bg-red-600 text-white hover:bg-red-700 text-center"
-            type="button"
+          <a
+            href="/login"
+            className="w-full py-3 px-4 rounded-lg text-sm font-medium bg-red-600 text-white hover:bg-red-700 text-center block"
+            style={{ textDecoration: 'none' }}
           >
             {t('card.apply')}
-          </button>
+          </a>
         ) : (
-          <button
-            onClick={(e) => {
-              e.preventDefault()
-              e.stopPropagation()
-              const url = isInstagram 
-                ? `/instagram/experiences/${experience.id}`
-                : `/experiences/${experience.id}`
-              router.push(url)
-            }}
-            className="w-full py-3 px-4 rounded-lg text-sm font-medium bg-red-600 text-white hover:bg-red-700 text-center"
-            type="button"
+          <a
+            href={isInstagram 
+              ? `/instagram/experiences/${experience.id}`
+              : `/experiences/${experience.id}`}
+            className="w-full py-3 px-4 rounded-lg text-sm font-medium bg-red-600 text-white hover:bg-red-700 text-center block"
+            style={{ textDecoration: 'none' }}
           >
             {t('card.apply')}
-          </button>
+          </a>
         )}
       </div>
     </div>
