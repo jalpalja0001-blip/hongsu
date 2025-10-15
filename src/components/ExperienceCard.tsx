@@ -1,6 +1,6 @@
 import { useLanguage } from '@/contexts/LanguageContext'
 import { useRouter } from 'next/navigation'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { getApplicationsByExperience, getInstagramApplicationsByExperience } from '@/lib/applicationService'
 import { Experience } from '@/types/database'
 import { useAuth } from '@/hooks/useAuth'
@@ -313,7 +313,7 @@ export default function ExperienceCard({ experience, isInstagram = false }: Expe
   // const isFull = experience.participants >= experience.maxParticipants // 사용하지 않음
   const isUrgent = daysUntilEnd <= 3
 
-  const handleApply = (e: React.MouseEvent<HTMLButtonElement>) => {
+  const handleApply = useCallback((e: React.MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault()
     e.stopPropagation()
     
@@ -348,8 +348,16 @@ export default function ExperienceCard({ experience, isInstagram = false }: Expe
       : `/experiences/${experience.id}`
     
     console.log('상세페이지로 이동:', targetPath)
-    router.push(targetPath)
-  }
+    
+    // 배포 환경에서 더 안정적인 네비게이션
+    try {
+      router.push(targetPath)
+    } catch (error) {
+      console.error('라우터 에러:', error)
+      // 폴백으로 window.location 사용
+      window.location.href = targetPath
+    }
+  }, [experience.id, isInstagram, daysUntilEnd, isAuthenticated, loading, router])
 
   return (
     <div className={`bg-white rounded-lg shadow-md overflow-hidden transition-all duration-300 transform hover:scale-105 ${
@@ -527,21 +535,36 @@ export default function ExperienceCard({ experience, isInstagram = false }: Expe
         </div>
 
         {/* 버튼 */}
-        <button 
-          onClick={handleApply}
-          onMouseDown={(e) => e.preventDefault()}
-          disabled={daysUntilEnd <= 0}
-          type="button"
-          role="button"
-          aria-label={daysUntilEnd <= 0 ? t('card.closed') : t('card.apply')}
-          className={`w-full py-3 px-4 rounded-lg text-sm font-medium transition-colors ${
-            daysUntilEnd <= 0 
-              ? 'bg-gray-400 text-gray-200 cursor-not-allowed' 
-              : 'bg-red-600 text-white hover:bg-red-700'
-          }`}
-        >
-          {daysUntilEnd <= 0 ? t('card.closed') : t('card.apply')}
-        </button>
+        {daysUntilEnd <= 0 ? (
+          <button 
+            disabled={true}
+            type="button"
+            role="button"
+            aria-label={t('card.closed')}
+            className="w-full py-3 px-4 rounded-lg text-sm font-medium bg-gray-400 text-gray-200 cursor-not-allowed"
+          >
+            {t('card.closed')}
+          </button>
+        ) : (
+          <a
+            href={isInstagram 
+              ? `/instagram/experiences/${experience.id}`
+              : `/experiences/${experience.id}`
+            }
+            onClick={handleApply}
+            onMouseDown={(e) => e.preventDefault()}
+            onTouchStart={(e) => e.preventDefault()}
+            onTouchEnd={(e) => e.preventDefault()}
+            style={{ 
+              touchAction: 'manipulation',
+              textDecoration: 'none',
+              display: 'block'
+            }}
+            className="w-full py-3 px-4 rounded-lg text-sm font-medium transition-colors bg-red-600 text-white hover:bg-red-700 text-center"
+          >
+            {t('card.apply')}
+          </a>
+        )}
       </div>
     </div>
   )
