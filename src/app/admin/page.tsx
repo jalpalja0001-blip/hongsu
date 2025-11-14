@@ -3161,11 +3161,18 @@ export default function AdminPage() {
                             <div className="bg-gray-50 p-2 rounded">
                               <div className="text-gray-500 text-xs">팔로워</div>
                               <div className="font-medium">
-                                {application.followerCount 
-                                  ? (typeof application.followerCount === 'string' 
-                                      ? parseInt(application.followerCount).toLocaleString() 
-                                      : application.followerCount.toLocaleString())
-                                  : '0'}명
+                                {(() => {
+                                  const followerCount = application.followerCount as string | number | undefined
+                                  if (!followerCount) return '0'
+                                  if (typeof followerCount === 'string') {
+                                    const num = parseInt(followerCount)
+                                    return isNaN(num) ? '0' : num.toLocaleString()
+                                  }
+                                  if (typeof followerCount === 'number') {
+                                    return followerCount.toLocaleString()
+                                  }
+                                  return '0'
+                                })()}명
                               </div>
                             </div>
                             <div className="bg-gray-50 p-2 rounded">
@@ -4708,11 +4715,18 @@ export default function AdminPage() {
                             <div className="bg-gray-50 p-2 rounded">
                               <div className="text-gray-500 text-xs">팔로워</div>
                               <div className="font-medium">
-                                {application.followerCount 
-                                  ? (typeof application.followerCount === 'string' 
-                                      ? parseInt(application.followerCount).toLocaleString() 
-                                      : application.followerCount.toLocaleString())
-                                  : '0'}명
+                                {(() => {
+                                  const followerCount = application.followerCount as string | number | undefined
+                                  if (!followerCount) return '0'
+                                  if (typeof followerCount === 'string') {
+                                    const num = parseInt(followerCount)
+                                    return isNaN(num) ? '0' : num.toLocaleString()
+                                  }
+                                  if (typeof followerCount === 'number') {
+                                    return followerCount.toLocaleString()
+                                  }
+                                  return '0'
+                                })()}명
                               </div>
                             </div>
                             <div className="bg-gray-50 p-2 rounded">
