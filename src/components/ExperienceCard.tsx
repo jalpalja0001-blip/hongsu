@@ -1,7 +1,6 @@
 import { useLanguage } from '@/contexts/LanguageContext'
 import { useRouter } from 'next/navigation'
-import Link from 'next/link'
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect } from 'react'
 import { getApplicationsByExperience, getInstagramApplicationsByExperience } from '@/lib/applicationService'
 import { Experience } from '@/types/database'
 import { useAuth } from '@/hooks/useAuth'
@@ -314,6 +313,30 @@ export default function ExperienceCard({ experience, isInstagram = false }: Expe
   // const isFull = experience.participants >= experience.maxParticipants // 사용하지 않음
   const isUrgent = daysUntilEnd <= 3
 
+  const handleApply = () => {
+    // 마감된 경우 아무것도 하지 않음
+    if (daysUntilEnd <= 0) {
+      return
+    }
+    
+    if (!loading && !isAuthenticated) {
+      // 로그인하지 않은 경우 로그인 페이지로 리다이렉트
+      router.push('/login')
+      return
+    }
+    
+    if (loading) {
+      // 로딩 중인 경우 아무것도 하지 않음
+      return
+    }
+    
+    // 로그인된 경우 체험단 상세 페이지로 이동
+    if (isInstagram) {
+      router.push(`/instagram/experiences/${experience.id}`)
+    } else {
+      router.push(`/experiences/${experience.id}`)
+    }
+  }
 
   return (
     <div className={`bg-white rounded-lg shadow-md overflow-hidden transition-all duration-300 transform hover:scale-105 ${
@@ -336,14 +359,14 @@ export default function ExperienceCard({ experience, isInstagram = false }: Expe
                   setImageLoaded(true)
                 }}
                 onError={(e) => {
-                  // 이미지 로드 실패 시 조용히 처리 (403 에러는 Firebase Storage 규칙 문제)
+                  console.error('이미지 로드 실패:', experience.image, e)
                   setImageLoaded(false)
                 }}
                 priority={false}
                 sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                 placeholder="blur"
                 blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCdABmX/9k="
-                unoptimized={false}
+                unoptimized={true}
               />
               {/* 이미지 로드 실패 시 fallback */}
               {!imageLoaded && (
@@ -491,38 +514,17 @@ export default function ExperienceCard({ experience, isInstagram = false }: Expe
         </div>
 
         {/* 버튼 */}
-        {daysUntilEnd <= 0 ? (
-          <div className="w-full py-3 px-4 rounded-lg text-sm font-medium bg-gray-400 text-gray-200 cursor-not-allowed text-center">
-            {t('card.closed')}
-          </div>
-        ) : !isAuthenticated ? (
-          <button
-            onClick={() => {
-              console.log('로그인 페이지로 이동');
-              window.location.href = '/login';
-            }}
-            className="w-full py-3 px-4 rounded-lg text-sm font-medium bg-red-600 text-white hover:bg-red-700 text-center"
-            type="button"
-          >
-            {t('card.apply')}
-          </button>
-        ) : (
-          <Link
-            href={isInstagram 
-              ? `/instagram/experiences/${experience.id}`
-              : `/experiences/${experience.id}`}
-            className="w-full py-3 px-4 rounded-lg text-sm font-medium bg-red-600 text-white hover:bg-red-700 text-center block"
-            onClick={() => {
-              console.log('상세페이지로 이동 (Link 컴포넌트)');
-              const url = isInstagram 
-                ? `/instagram/experiences/${experience.id}`
-                : `/experiences/${experience.id}`;
-              console.log('이동할 URL:', url);
-            }}
-          >
-            {t('card.apply')}
-          </Link>
-        )}
+        <button 
+          onClick={handleApply}
+          disabled={daysUntilEnd <= 0}
+          className={`w-full py-3 px-4 rounded-lg text-sm font-medium transition-colors ${
+            daysUntilEnd <= 0 
+              ? 'bg-gray-400 text-gray-200 cursor-not-allowed' 
+              : 'bg-red-600 text-white hover:bg-red-700'
+          }`}
+        >
+          {daysUntilEnd <= 0 ? t('card.closed') : t('card.apply')}
+        </button>
       </div>
     </div>
   )

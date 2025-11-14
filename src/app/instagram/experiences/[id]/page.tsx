@@ -143,7 +143,7 @@ export default function InstagramExperienceDetailPage() {
         console.log('인스타그램 체험단 상세 정보 로딩 시작:', params.id)
         setLoading(true)
         
-      const experienceRef = doc(db, 'instagram_experiences', params.id as string)
+        const experienceRef = doc(db, 'instagram_experiences', params.id as string)
         const experienceSnap = await getDoc(experienceRef)
         
         if (experienceSnap.exists()) {
@@ -382,7 +382,7 @@ export default function InstagramExperienceDetailPage() {
                             sizes="(max-width: 768px) 100vw, 50vw"
                             placeholder="blur"
                             blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCdABmX/9k="
-                            unoptimized={false}
+                            unoptimized={true}
                           />
                         </div>
                         <div className="absolute top-2 right-2 bg-black bg-opacity-50 text-white text-sm px-2 py-1 rounded">

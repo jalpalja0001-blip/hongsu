@@ -119,7 +119,7 @@ export default function ExperienceDetailPage() {
     const fetchExperience = async () => {
       try {
         setLoading(true)
-    const docRef = doc(db, 'experiences', params.id as string)
+        const docRef = doc(db, 'experiences', params.id as string)
         const docSnap = await getDoc(docRef)
         
         if (docSnap.exists()) {
@@ -430,7 +430,7 @@ export default function ExperienceDetailPage() {
                             sizes="(max-width: 768px) 100vw, 50vw"
                             placeholder="blur"
                             blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCdABmX/9k="
-                            unoptimized={false}
+                            unoptimized={true}
                           />
                         </div>
                         <div className="absolute top-2 right-2 bg-black bg-opacity-50 text-white text-sm px-2 py-1 rounded">
