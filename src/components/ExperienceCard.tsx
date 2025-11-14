@@ -336,7 +336,7 @@ export default function ExperienceCard({ experience, isInstagram = false }: Expe
                   setImageLoaded(true)
                 }}
                 onError={(e) => {
-                  console.error('이미지 로드 실패:', experience.image, e)
+                  // 이미지 로드 실패 시 조용히 처리 (403 에러는 Firebase Storage 규칙 문제)
                   setImageLoaded(false)
                 }}
                 priority={false}
