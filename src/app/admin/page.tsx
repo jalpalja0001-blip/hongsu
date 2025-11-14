@@ -100,6 +100,7 @@ export default function AdminPage() {
   const [instagramApplications, setInstagramApplications] = useState<Application[]>([])
   const [instagramApplicationMessage, setInstagramApplicationMessage] = useState('')
   const [instagramApplicationFilter, setInstagramApplicationFilter] = useState<'all' | 'pending' | 'approved' | 'rejected'>('all')
+  const [selectedInstagramExperienceId, setSelectedInstagramExperienceId] = useState<string>('all-ongoing')
   
   // 인스타그램 카드 만들기 관련 상태
   const [instagramCardForm, setInstagramCardForm] = useState({
@@ -149,6 +150,7 @@ export default function AdminPage() {
   const [applicationsLoading, setApplicationsLoading] = useState(false)
   const [applicationMessage, setApplicationMessage] = useState('')
   const [applicationFilter, setApplicationFilter] = useState<'all' | 'pending' | 'approved' | 'rejected'>('all')
+  const [selectedExperienceId, setSelectedExperienceId] = useState<string>('all-ongoing')
   const [allExperiences, setAllExperiences] = useState<Experience[]>([])
   const [experiencesLoading, setExperiencesLoading] = useState(false)
   
@@ -378,6 +380,26 @@ export default function AdminPage() {
     } catch {
       console.error('신청 통계 로딩 오류')
     }
+  }, [])
+
+  // 날짜가 안 지난 체험단인지 판단하는 헬퍼 함수
+  const isOngoingExperience = useCallback((experience: Experience): boolean => {
+    if (!experience.recruitmentEndDate) {
+      return experience.status !== 'completed'
+    }
+    const today = new Date()
+    const endDate = new Date(experience.recruitmentEndDate)
+    // 모집 종료일이 지나지 않았으면 진행중
+    if (today <= endDate) {
+      return true
+    }
+    // 체험 일정이 있다면 체험 일정 기준으로 판단
+    if (experience.date) {
+      const experienceDate = new Date(experience.date)
+      return today < experienceDate
+    }
+    // 체험 일정이 없으면 상태 기준
+    return experience.status !== 'completed'
   }, [])
 
   const loadAllExperiences = useCallback(async () => {
@@ -1327,6 +1349,31 @@ export default function AdminPage() {
     }
   }, [])
 
+  // 인스타그램 신청 통계 로딩
+  const loadInstagramApplicationStats = useCallback(async () => {
+    try {
+      const result = await getAllApplications()
+      if (result.success) {
+        // 인스타그램 체험단 신청서만 필터링하여 통계 계산
+        const instagramApplications = result.applications?.filter(app => {
+          return (app as any).collectionSource === 'instagram_experiences'
+        }) || []
+        
+        const stats = {
+          total: instagramApplications.length,
+          pending: instagramApplications.filter(app => app.status === 'pending').length,
+          approved: instagramApplications.filter(app => app.status === 'approved').length,
+          rejected: instagramApplications.filter(app => app.status === 'rejected').length
+        }
+        
+        console.log('인스타그램 신청 통계:', stats)
+        setInstagramApplicationStats(stats)
+      }
+    } catch {
+      console.error('인스타그램 신청 통계 로딩 오류')
+    }
+  }, [])
+
   // 인스타그램 신청 데이터 로딩
   const loadInstagramApplications = useCallback(async () => {
     try {
@@ -1376,8 +1423,9 @@ export default function AdminPage() {
       loadApplicationStats()
     } else if (activeTab === 'instagram-applications') {
       loadInstagramApplications()
+      loadInstagramApplicationStats()
     }
-  }, [activeTab, isAuthenticated, adminLoading, isAdmin, loadApplications, loadApplicationStats, loadInstagramApplications])
+  }, [activeTab, isAuthenticated, adminLoading, isAdmin, loadApplications, loadApplicationStats, loadInstagramApplications, loadInstagramApplicationStats])
 
   // 인스타그램 사용자 통계 로딩 (인스타그램 체험단 신청자 기준)
   const loadInstagramUserStats = useCallback(async () => {
@@ -2960,68 +3008,131 @@ export default function AdminPage() {
               </div>
             </div>
             
+            {/* 체험단 선택 필터 */}
+            <div className="bg-white rounded-xl shadow-sm p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-semibold text-gray-900">업체별 필터</h3>
+              </div>
+              <div className="flex items-center gap-4">
+                <label className="text-sm font-medium text-gray-700 whitespace-nowrap">체험단 선택:</label>
+                <select
+                  value={selectedExperienceId}
+                  onChange={(e) => setSelectedExperienceId(e.target.value)}
+                  className="flex-1 max-w-md px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                >
+                  <option value="all-ongoing">전체 체험단(진행중)</option>
+                  <option value="all-all">전체 체험단(완료포함전체)</option>
+                  {allExperiences
+                    .filter(experience => isOngoingExperience(experience))
+                    .map((experience) => (
+                      <option key={experience.id} value={experience.id}>
+                        {experience.title}
+                      </option>
+                    ))}
+                </select>
+                {selectedExperienceId !== 'all-ongoing' && (
+                  <button
+                    onClick={() => setSelectedExperienceId('all-ongoing')}
+                    className="px-3 py-2 text-sm text-gray-600 hover:text-gray-900 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                  >
+                    필터 초기화
+                  </button>
+                )}
+              </div>
+            </div>
 
             {/* 신청 통계 */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-              <button 
-                onClick={() => setApplicationFilter('all')}
-                className={`bg-gradient-to-r from-blue-500 to-blue-600 p-6 rounded-xl text-white transition-all duration-200 hover:scale-105 hover:shadow-lg ${
-                  applicationFilter === 'all' ? 'ring-4 ring-blue-300 shadow-xl' : ''
-                }`}
-              >
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-blue-100 text-sm font-medium">총 신청</p>
-                    <p className="text-3xl font-bold">{applicationStats.total}</p>
-                  </div>
-                  <FileText className="h-8 w-8 text-blue-200" />
-                </div>
-              </button>
-              
-              <button 
-                onClick={() => setApplicationFilter('pending')}
-                className={`bg-gradient-to-r from-yellow-500 to-yellow-600 p-6 rounded-xl text-white transition-all duration-200 hover:scale-105 hover:shadow-lg ${
-                  applicationFilter === 'pending' ? 'ring-4 ring-yellow-300 shadow-xl' : ''
-                }`}
-              >
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-yellow-100 text-sm font-medium">대기중</p>
-                    <p className="text-3xl font-bold">{applicationStats.pending}</p>
-                  </div>
-                  <Clock className="h-8 w-8 text-yellow-200" />
-                </div>
-              </button>
-              
-              <button 
-                onClick={() => setApplicationFilter('approved')}
-                className={`bg-gradient-to-r from-green-500 to-green-600 p-6 rounded-xl text-white transition-all duration-200 hover:scale-105 hover:shadow-lg ${
-                  applicationFilter === 'approved' ? 'ring-4 ring-green-300 shadow-xl' : ''
-                }`}
-              >
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-green-100 text-sm font-medium">승인됨</p>
-                    <p className="text-3xl font-bold">{applicationStats.approved}</p>
-                  </div>
-                  <CheckCircle className="h-8 w-8 text-green-200" />
-                </div>
-              </button>
-              
-              <button 
-                onClick={() => setApplicationFilter('rejected')}
-                className={`bg-gradient-to-r from-red-500 to-red-600 p-6 rounded-xl text-white transition-all duration-200 hover:scale-105 hover:shadow-lg ${
-                  applicationFilter === 'rejected' ? 'ring-4 ring-red-300 shadow-xl' : ''
-                }`}
-              >
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-red-100 text-sm font-medium">거부됨</p>
-                    <p className="text-3xl font-bold">{applicationStats.rejected}</p>
-                  </div>
-                  <XCircle className="h-8 w-8 text-red-200" />
-                </div>
-              </button>
+              {(() => {
+                // 선택한 체험단에 따라 필터링된 신청서
+                const experienceFilteredApps = (() => {
+                  if (selectedExperienceId === 'all-ongoing') {
+                    // 진행중인 체험단만 필터링
+                    const ongoingExperienceIds = allExperiences
+                      .filter(experience => isOngoingExperience(experience))
+                      .map(exp => exp.id)
+                    return applications.filter(app => ongoingExperienceIds.includes(app.experienceId))
+                  } else if (selectedExperienceId === 'all-all') {
+                    // 모든 체험단
+                    return applications
+                  } else {
+                    // 특정 체험단
+                    return applications.filter(app => app.experienceId === selectedExperienceId)
+                  }
+                })()
+                
+                // 상태별 통계 계산
+                const stats = {
+                  total: experienceFilteredApps.length,
+                  pending: experienceFilteredApps.filter(app => app.status === 'pending').length,
+                  approved: experienceFilteredApps.filter(app => app.status === 'approved').length,
+                  rejected: experienceFilteredApps.filter(app => app.status === 'rejected').length
+                }
+                
+                return (
+                  <>
+                    <button 
+                      onClick={() => setApplicationFilter('all')}
+                      className={`bg-gradient-to-r from-blue-500 to-blue-600 p-6 rounded-xl text-white transition-all duration-200 hover:scale-105 hover:shadow-lg ${
+                        applicationFilter === 'all' ? 'ring-4 ring-blue-300 shadow-xl' : ''
+                      }`}
+                    >
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="text-blue-100 text-sm font-medium">총 신청</p>
+                          <p className="text-3xl font-bold">{stats.total}</p>
+                        </div>
+                        <FileText className="h-8 w-8 text-blue-200" />
+                      </div>
+                    </button>
+                    
+                    <button 
+                      onClick={() => setApplicationFilter('pending')}
+                      className={`bg-gradient-to-r from-yellow-500 to-yellow-600 p-6 rounded-xl text-white transition-all duration-200 hover:scale-105 hover:shadow-lg ${
+                        applicationFilter === 'pending' ? 'ring-4 ring-yellow-300 shadow-xl' : ''
+                      }`}
+                    >
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="text-yellow-100 text-sm font-medium">대기중</p>
+                          <p className="text-3xl font-bold">{stats.pending}</p>
+                        </div>
+                        <Clock className="h-8 w-8 text-yellow-200" />
+                      </div>
+                    </button>
+                    
+                    <button 
+                      onClick={() => setApplicationFilter('approved')}
+                      className={`bg-gradient-to-r from-green-500 to-green-600 p-6 rounded-xl text-white transition-all duration-200 hover:scale-105 hover:shadow-lg ${
+                        applicationFilter === 'approved' ? 'ring-4 ring-green-300 shadow-xl' : ''
+                      }`}
+                    >
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="text-green-100 text-sm font-medium">승인됨</p>
+                          <p className="text-3xl font-bold">{stats.approved}</p>
+                        </div>
+                        <CheckCircle className="h-8 w-8 text-green-200" />
+                      </div>
+                    </button>
+                    
+                    <button 
+                      onClick={() => setApplicationFilter('rejected')}
+                      className={`bg-gradient-to-r from-red-500 to-red-600 p-6 rounded-xl text-white transition-all duration-200 hover:scale-105 hover:shadow-lg ${
+                        applicationFilter === 'rejected' ? 'ring-4 ring-red-300 shadow-xl' : ''
+                      }`}
+                    >
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="text-red-100 text-sm font-medium">거부됨</p>
+                          <p className="text-3xl font-bold">{stats.rejected}</p>
+                        </div>
+                        <XCircle className="h-8 w-8 text-red-200" />
+                      </div>
+                    </button>
+                  </>
+                )
+              })()}
             </div>
 
             {/* 신청서 목록 */}
@@ -3031,6 +3142,21 @@ export default function AdminPage() {
                   <div>
                     <h3 className="text-lg font-semibold text-gray-900">
                       신청서 목록
+                      {selectedExperienceId === 'all-ongoing' && (
+                        <span className="ml-2 text-sm font-normal text-gray-500">
+                          (진행중)
+                        </span>
+                      )}
+                      {selectedExperienceId === 'all-all' && (
+                        <span className="ml-2 text-sm font-normal text-gray-500">
+                          (완료포함전체)
+                        </span>
+                      )}
+                      {selectedExperienceId !== 'all-ongoing' && selectedExperienceId !== 'all-all' && (
+                        <span className="ml-2 text-sm font-normal text-gray-500">
+                          ({allExperiences.find(e => e.id === selectedExperienceId)?.title || '선택한 체험단'})
+                        </span>
+                      )}
                       {applicationFilter !== 'all' && (
                         <span className="ml-2 text-sm font-normal text-gray-600">
                           ({applicationFilter === 'pending' ? '대기중' : 
@@ -3040,9 +3166,24 @@ export default function AdminPage() {
                     </h3>
                     <p className="text-sm text-gray-500">
                       {(() => {
+                        // 체험단 필터 적용
+                        const experienceFilteredApps = (() => {
+                          if (selectedExperienceId === 'all-ongoing') {
+                            const ongoingExperienceIds = allExperiences
+                              .filter(experience => isOngoingExperience(experience))
+                              .map(exp => exp.id)
+                            return applications.filter(app => ongoingExperienceIds.includes(app.experienceId))
+                          } else if (selectedExperienceId === 'all-all') {
+                            return applications
+                          } else {
+                            return applications.filter(app => app.experienceId === selectedExperienceId)
+                          }
+                        })()
+                        
+                        // 상태 필터 적용
                         const filteredApplications = applicationFilter === 'all' 
-                          ? applications 
-                          : applications.filter(app => app.status === applicationFilter)
+                          ? experienceFilteredApps 
+                          : experienceFilteredApps.filter(app => app.status === applicationFilter)
                         return `총 ${filteredApplications.length}개의 신청서`
                       })()}
                       {applications.filter(app => !app.name || !app.experienceTitle || !app.visitDate).length > 0 && (
@@ -3078,9 +3219,24 @@ export default function AdminPage() {
                     <span className="ml-2 text-gray-600">신청서를 불러오는 중...</span>
                   </div>
                 ) : (() => {
+                  // 체험단 필터 적용
+                  const experienceFilteredApps = (() => {
+                    if (selectedExperienceId === 'all-ongoing') {
+                      const ongoingExperienceIds = allExperiences
+                        .filter(experience => isOngoingExperience(experience))
+                        .map(exp => exp.id)
+                      return applications.filter(app => ongoingExperienceIds.includes(app.experienceId))
+                    } else if (selectedExperienceId === 'all-all') {
+                      return applications
+                    } else {
+                      return applications.filter(app => app.experienceId === selectedExperienceId)
+                    }
+                  })()
+                  
+                  // 상태 필터 적용
                   const filteredApplications = applicationFilter === 'all' 
-                    ? applications 
-                    : applications.filter(app => app.status === applicationFilter)
+                    ? experienceFilteredApps 
+                    : experienceFilteredApps.filter(app => app.status === applicationFilter)
                   
                   return filteredApplications.length === 0 ? (
                     <div className="text-center py-8">
@@ -4022,13 +4178,16 @@ export default function AdminPage() {
                 </button>
                 <button
                   onClick={() => {
+                    loadInstagramApplications()
+                    loadInstagramApplicationStats()
+                    loadInstagramUserStats()
                     loadInstagramData()
                   }}
-                  disabled={instagramLoading}
+                  disabled={instagramLoading || applicationsLoading}
                   className="bg-blue-600 text-white px-4 py-3 sm:px-4 sm:py-2 rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 flex items-center gap-2 text-sm sm:text-base"
                 >
-                  <RefreshCw className={`h-4 w-4 ${instagramLoading ? 'animate-spin' : ''}`} />
-                  {instagramLoading ? '로딩 중...' : '전체 새로고침'}
+                  <RefreshCw className={`h-4 w-4 ${(instagramLoading || applicationsLoading) ? 'animate-spin' : ''}`} />
+                  {(instagramLoading || applicationsLoading) ? '로딩 중...' : '전체 새로고침'}
                 </button>
               </div>
             </div>
@@ -4514,68 +4673,131 @@ export default function AdminPage() {
               </div>
             </div>
             
+            {/* 체험단 선택 필터 */}
+            <div className="bg-white rounded-xl shadow-sm p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-semibold text-gray-900">업체별 필터</h3>
+              </div>
+              <div className="flex items-center gap-4">
+                <label className="text-sm font-medium text-gray-700 whitespace-nowrap">체험단 선택:</label>
+                <select
+                  value={selectedInstagramExperienceId}
+                  onChange={(e) => setSelectedInstagramExperienceId(e.target.value)}
+                  className="flex-1 max-w-md px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent text-sm"
+                >
+                  <option value="all-ongoing">전체 체험단(진행중)</option>
+                  <option value="all-all">전체 체험단(완료포함전체)</option>
+                  {instagramAllExperiences
+                    .filter(experience => isOngoingExperience(experience))
+                    .map((experience) => (
+                      <option key={experience.id} value={experience.id}>
+                        {experience.title}
+                      </option>
+                    ))}
+                </select>
+                {selectedInstagramExperienceId !== 'all-ongoing' && (
+                  <button
+                    onClick={() => setSelectedInstagramExperienceId('all-ongoing')}
+                    className="px-3 py-2 text-sm text-gray-600 hover:text-gray-900 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                  >
+                    필터 초기화
+                  </button>
+                )}
+              </div>
+            </div>
 
             {/* 인스타그램 신청 통계 */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-              <button 
-                onClick={() => setInstagramApplicationFilter('all')}
-                className={`bg-gradient-to-r from-pink-500 to-pink-600 p-6 rounded-xl text-white transition-all duration-200 hover:scale-105 hover:shadow-lg ${
-                  instagramApplicationFilter === 'all' ? 'ring-4 ring-pink-300 shadow-xl' : ''
-                }`}
-              >
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-pink-100 text-sm font-medium">총 신청</p>
-                    <p className="text-3xl font-bold">{instagramApplicationStats.total}</p>
-                  </div>
-                  <FileText className="h-8 w-8 text-pink-200" />
-                </div>
-              </button>
-              
-              <button 
-                onClick={() => setInstagramApplicationFilter('pending')}
-                className={`bg-gradient-to-r from-yellow-500 to-yellow-600 p-6 rounded-xl text-white transition-all duration-200 hover:scale-105 hover:shadow-lg ${
-                  instagramApplicationFilter === 'pending' ? 'ring-4 ring-yellow-300 shadow-xl' : ''
-                }`}
-              >
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-yellow-100 text-sm font-medium">대기중</p>
-                    <p className="text-3xl font-bold">{instagramApplicationStats.pending}</p>
-                  </div>
-                  <Clock className="h-8 w-8 text-yellow-200" />
-                </div>
-              </button>
-              
-              <button 
-                onClick={() => setInstagramApplicationFilter('approved')}
-                className={`bg-gradient-to-r from-green-500 to-green-600 p-6 rounded-xl text-white transition-all duration-200 hover:scale-105 hover:shadow-lg ${
-                  instagramApplicationFilter === 'approved' ? 'ring-4 ring-green-300 shadow-xl' : ''
-                }`}
-              >
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-green-100 text-sm font-medium">승인됨</p>
-                    <p className="text-3xl font-bold">{instagramApplicationStats.approved}</p>
-                  </div>
-                  <CheckCircle className="h-8 w-8 text-green-200" />
-                </div>
-              </button>
-              
-              <button 
-                onClick={() => setInstagramApplicationFilter('rejected')}
-                className={`bg-gradient-to-r from-red-500 to-red-600 p-6 rounded-xl text-white transition-all duration-200 hover:scale-105 hover:shadow-lg ${
-                  instagramApplicationFilter === 'rejected' ? 'ring-4 ring-red-300 shadow-xl' : ''
-                }`}
-              >
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-red-100 text-sm font-medium">거부됨</p>
-                    <p className="text-3xl font-bold">{instagramApplicationStats.rejected}</p>
-                  </div>
-                  <XCircle className="h-8 w-8 text-red-200" />
-                </div>
-              </button>
+              {(() => {
+                // 선택한 체험단에 따라 필터링된 신청서
+                const experienceFilteredApps = (() => {
+                  if (selectedInstagramExperienceId === 'all-ongoing') {
+                    // 진행중인 체험단만 필터링
+                    const ongoingExperienceIds = instagramAllExperiences
+                      .filter(experience => isOngoingExperience(experience))
+                      .map(exp => exp.id)
+                    return instagramApplications.filter(app => ongoingExperienceIds.includes(app.experienceId))
+                  } else if (selectedInstagramExperienceId === 'all-all') {
+                    // 모든 체험단
+                    return instagramApplications
+                  } else {
+                    // 특정 체험단
+                    return instagramApplications.filter(app => app.experienceId === selectedInstagramExperienceId)
+                  }
+                })()
+                
+                // 상태별 통계 계산
+                const stats = {
+                  total: experienceFilteredApps.length,
+                  pending: experienceFilteredApps.filter(app => app.status === 'pending').length,
+                  approved: experienceFilteredApps.filter(app => app.status === 'approved').length,
+                  rejected: experienceFilteredApps.filter(app => app.status === 'rejected').length
+                }
+                
+                return (
+                  <>
+                    <button 
+                      onClick={() => setInstagramApplicationFilter('all')}
+                      className={`bg-gradient-to-r from-pink-500 to-pink-600 p-6 rounded-xl text-white transition-all duration-200 hover:scale-105 hover:shadow-lg ${
+                        instagramApplicationFilter === 'all' ? 'ring-4 ring-pink-300 shadow-xl' : ''
+                      }`}
+                    >
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="text-pink-100 text-sm font-medium">총 신청</p>
+                          <p className="text-3xl font-bold">{stats.total}</p>
+                        </div>
+                        <FileText className="h-8 w-8 text-pink-200" />
+                      </div>
+                    </button>
+                    
+                    <button 
+                      onClick={() => setInstagramApplicationFilter('pending')}
+                      className={`bg-gradient-to-r from-yellow-500 to-yellow-600 p-6 rounded-xl text-white transition-all duration-200 hover:scale-105 hover:shadow-lg ${
+                        instagramApplicationFilter === 'pending' ? 'ring-4 ring-yellow-300 shadow-xl' : ''
+                      }`}
+                    >
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="text-yellow-100 text-sm font-medium">대기중</p>
+                          <p className="text-3xl font-bold">{stats.pending}</p>
+                        </div>
+                        <Clock className="h-8 w-8 text-yellow-200" />
+                      </div>
+                    </button>
+                    
+                    <button 
+                      onClick={() => setInstagramApplicationFilter('approved')}
+                      className={`bg-gradient-to-r from-green-500 to-green-600 p-6 rounded-xl text-white transition-all duration-200 hover:scale-105 hover:shadow-lg ${
+                        instagramApplicationFilter === 'approved' ? 'ring-4 ring-green-300 shadow-xl' : ''
+                      }`}
+                    >
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="text-green-100 text-sm font-medium">승인됨</p>
+                          <p className="text-3xl font-bold">{stats.approved}</p>
+                        </div>
+                        <CheckCircle className="h-8 w-8 text-green-200" />
+                      </div>
+                    </button>
+                    
+                    <button 
+                      onClick={() => setInstagramApplicationFilter('rejected')}
+                      className={`bg-gradient-to-r from-red-500 to-red-600 p-6 rounded-xl text-white transition-all duration-200 hover:scale-105 hover:shadow-lg ${
+                        instagramApplicationFilter === 'rejected' ? 'ring-4 ring-red-300 shadow-xl' : ''
+                      }`}
+                    >
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="text-red-100 text-sm font-medium">거부됨</p>
+                          <p className="text-3xl font-bold">{stats.rejected}</p>
+                        </div>
+                        <XCircle className="h-8 w-8 text-red-200" />
+                      </div>
+                    </button>
+                  </>
+                )
+              })()}
             </div>
 
             {/* 인스타그램 신청서 목록 */}
@@ -4585,6 +4807,21 @@ export default function AdminPage() {
                   <div>
                     <h3 className="text-lg font-semibold text-gray-900">
                       인스타그램 신청서 목록
+                      {selectedInstagramExperienceId === 'all-ongoing' && (
+                        <span className="ml-2 text-sm font-normal text-gray-500">
+                          (진행중)
+                        </span>
+                      )}
+                      {selectedInstagramExperienceId === 'all-all' && (
+                        <span className="ml-2 text-sm font-normal text-gray-500">
+                          (완료포함전체)
+                        </span>
+                      )}
+                      {selectedInstagramExperienceId !== 'all-ongoing' && selectedInstagramExperienceId !== 'all-all' && (
+                        <span className="ml-2 text-sm font-normal text-gray-500">
+                          ({instagramAllExperiences.find(e => e.id === selectedInstagramExperienceId)?.title || '선택한 체험단'})
+                        </span>
+                      )}
                       {instagramApplicationFilter !== 'all' && (
                         <span className="ml-2 text-sm font-normal text-gray-600">
                           ({instagramApplicationFilter === 'pending' ? '대기중' : 
@@ -4594,9 +4831,24 @@ export default function AdminPage() {
                     </h3>
                     <p className="text-sm text-gray-500">
                       {(() => {
+                        // 체험단 필터 적용
+                        const experienceFilteredApps = (() => {
+                          if (selectedInstagramExperienceId === 'all-ongoing') {
+                            const ongoingExperienceIds = instagramAllExperiences
+                              .filter(experience => isOngoingExperience(experience))
+                              .map(exp => exp.id)
+                            return instagramApplications.filter(app => ongoingExperienceIds.includes(app.experienceId))
+                          } else if (selectedInstagramExperienceId === 'all-all') {
+                            return instagramApplications
+                          } else {
+                            return instagramApplications.filter(app => app.experienceId === selectedInstagramExperienceId)
+                          }
+                        })()
+                        
+                        // 상태 필터 적용
                         const filteredApplications = instagramApplicationFilter === 'all' 
-                          ? instagramApplications 
-                          : instagramApplications.filter(app => app.status === instagramApplicationFilter)
+                          ? experienceFilteredApps 
+                          : experienceFilteredApps.filter(app => app.status === instagramApplicationFilter)
                         return `총 ${filteredApplications.length}개의 신청서`
                       })()}
                       {instagramApplications.filter(app => !app.name || !app.experienceTitle || !app.visitDate).length > 0 && (
@@ -4632,9 +4884,24 @@ export default function AdminPage() {
                     <span className="ml-2 text-gray-600">인스타그램 신청서를 불러오는 중...</span>
                   </div>
                 ) : (() => {
+                  // 체험단 필터 적용
+                  const experienceFilteredApps = (() => {
+                    if (selectedInstagramExperienceId === 'all-ongoing') {
+                      const ongoingExperienceIds = instagramAllExperiences
+                        .filter(experience => isOngoingExperience(experience))
+                        .map(exp => exp.id)
+                      return instagramApplications.filter(app => ongoingExperienceIds.includes(app.experienceId))
+                    } else if (selectedInstagramExperienceId === 'all-all') {
+                      return instagramApplications
+                    } else {
+                      return instagramApplications.filter(app => app.experienceId === selectedInstagramExperienceId)
+                    }
+                  })()
+                  
+                  // 상태 필터 적용
                   const filteredApplications = instagramApplicationFilter === 'all' 
-                    ? instagramApplications 
-                    : instagramApplications.filter(app => app.status === instagramApplicationFilter)
+                    ? experienceFilteredApps 
+                    : experienceFilteredApps.filter(app => app.status === instagramApplicationFilter)
                   
                   return filteredApplications.length === 0 ? (
                     <div className="text-center py-8">
